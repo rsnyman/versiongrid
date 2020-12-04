@@ -1,0 +1,656 @@
+openapi: 3.0.0
+tags:
+  - name: version
+    description: A version of a component
+  - name: dependency
+    description: A dependency between two versions
+  - name: component
+    description: A project or product of some sort
+info:
+  title: VersionGrid
+  version: '1.0'
+servers:
+  - url: 'http://localhost:3000'
+paths:
+  /component:
+    get:
+      summary: Get a list of components
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentList'
+              examples:
+                Components:
+                  value:
+                    pagination:
+                      page: 1
+                      page_size: 20
+                      total_items: 1
+                      total_pages: 1
+                    components:
+                      - id: 22a38760-edb8-4dd8-9666-13d38e107016
+                        name: my-component
+                        title: My Component
+        '500':
+          description: Internal Server Error
+      operationId: get_component_list
+      description: A list of components
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: commit
+        - schema:
+            type: string
+          in: query
+          name: image_tag
+        - schema:
+            type: string
+          in: query
+          name: template_ref
+        - schema:
+            type: string
+          in: query
+          name: revision
+        - schema:
+            type: string
+          in: query
+          name: version
+      tags:
+        - component
+    post:
+      summary: Create a new component
+      operationId: add_component
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Component'
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+      description: Create a new component
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Component'
+      tags:
+        - component
+  '/component/{component_id}':
+    parameters:
+      - schema:
+          type: string
+        name: component_id
+        in: path
+        required: true
+    get:
+      summary: Get a single component
+      tags:
+        - component
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Component'
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      operationId: get_component
+      description: Get a component by id
+    put:
+      summary: Update a single component
+      operationId: update_component
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Component'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      description: Update a particular component
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Component'
+      tags:
+        - component
+    delete:
+      summary: Delete a single component
+      operationId: delete_component
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      description: Delete a component
+      tags:
+        - component
+  /dependency:
+    get:
+      summary: Get a list of dependencies
+      tags:
+        - dependency
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DependencyList'
+        '500':
+          description: Internal Server Error
+      operationId: get_dependency_list
+      description: A list of dependencies
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: commit
+        - schema:
+            type: string
+          in: query
+          name: image_tag
+        - schema:
+            type: string
+          in: query
+          name: template_ref
+        - schema:
+            type: string
+          in: query
+          name: revision
+        - schema:
+            type: string
+          in: query
+          name: version
+    post:
+      summary: Create a new dependency
+      operationId: add_dependency
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dependency'
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+      description: Create a new dependency
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Dependency'
+      tags:
+        - dependency
+  '/dependency/{dependency_id}':
+    parameters:
+      - schema:
+          type: string
+        name: dependency_id
+        in: path
+        required: true
+    get:
+      summary: Get a single dependency
+      tags:
+        - dependency
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dependency'
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      operationId: get_dependency
+      description: Get a dependency by id
+    put:
+      summary: Update a single dependency
+      operationId: update_dependency
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dependency'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      description: Update a particular dependency
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Dependency'
+      tags:
+        - dependency
+    delete:
+      summary: Delete a single dependency
+      operationId: delete_dependency
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      description: Delete a dependency
+      tags:
+        - dependency
+  /version:
+    get:
+      summary: Get a list of versions
+      tags:
+        - version
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionList'
+        '500':
+          description: Internal Server Error
+      operationId: get_version_list
+      description: A list of versions
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: commit
+        - schema:
+            type: string
+          in: query
+          name: image_tag
+        - schema:
+            type: string
+          in: query
+          name: template_ref
+        - schema:
+            type: string
+          in: query
+          name: revision
+        - schema:
+            type: string
+          in: query
+          name: version
+    post:
+      summary: Create a new version
+      operationId: add_version
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Version'
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+      description: Create a new version
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Version'
+      tags:
+        - version
+  '/version/{version_id}':
+    parameters:
+      - schema:
+          type: string
+        name: version_id
+        in: path
+        required: true
+    get:
+      summary: Get a single version
+      tags:
+        - version
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Version'
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      operationId: get_version
+      description: Get a version by id
+    put:
+      summary: Update a single version
+      operationId: update_version
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Version'
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      description: Update a particular version
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Version'
+      tags:
+        - version
+    delete:
+      summary: Delete a single version
+      operationId: delete_version
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      description: Delete a version
+      tags:
+        - version
+  /dependency/check:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DependencyCheck'
+      operationId: check_dependency
+      description: Check a list of dependencies
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: component
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: version
+        - schema:
+            type: array
+          in: query
+          name: dependency
+components:
+  schemas:
+    Version:
+      title: Version
+      type: object
+      properties:
+        id:
+          type: string
+        component_id:
+          type: string
+        commit:
+          type: string
+        image_tag:
+          type: string
+        template_ref:
+          type: string
+        revision:
+          type: string
+        version:
+          type: string
+        created:
+          type: string
+        environments:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              deployed_date:
+                type: string
+      description: A version of a component
+      x-examples:
+        VersionOne:
+          id: 8044ffe5-9019-452c-b74b-1413eb1dc88e
+          component_id: 22a38760-edb8-4dd8-9666-13d38e107016
+          commit: b977bcb32b463c7e7de381a84d495d761961a4e8
+          image_tag: ''
+          template_ref: ''
+          revision: ''
+          version: ''
+          created: '2020-12-04T14:32:23.628Z'
+          environments:
+            - name: qa
+              deployed_date: '2020-12-04T14:51:44.273Z'
+        VersionTwo:
+          id: b5730b82-6593-447c-b403-03ad9176c074
+          component_id: 7c313836-2bd2-43b6-9061-b829f5633dcd
+          commit: a7c0274e0d58eb8c38946f06b2cd3a455518b022
+          image_tag: ''
+          template_ref: ''
+          revision: ''
+          version: ''
+          created: '2020-12-04T14:33:53.238Z'
+          environments:
+            - name: qa
+              deployed_date: '2020-12-04T15:02:32.248Z'
+    Component:
+      title: Component
+      type: object
+      description: 'A component is a product, project or other versioned object'
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        title:
+          type: string
+      x-examples:
+        ComponentOne:
+          id: 22a38760-edb8-4dd8-9666-13d38e107016
+          name: component-one
+          title: Component One
+        ComponentTwo:
+          id: 7c313836-2bd2-43b6-9061-b829f5633dcd
+          name: component-two
+          title: Component Two
+    Dependency:
+      title: Dependency
+      type: object
+      description: A dependency between a version of one component and a version of another component
+      x-examples:
+        Dependency:
+          id: 433f6b35-a19c-458a-974a-d0993cc95b67
+          component_version_id: 8044ffe5-9019-452c-b74b-1413eb1dc88e
+          dependency_version_id: b5730b82-6593-447c-b403-03ad9176c074
+          created: '2020-12-04T15:28:31.436Z'
+      properties:
+        id:
+          type: string
+        component_version_id:
+          type: string
+        dependency_version_id:
+          type: string
+        created:
+          type: string
+    Pagination:
+      title: Pagination
+      type: object
+      properties:
+        page:
+          type: integer
+        page_size:
+          type: integer
+        total_items:
+          type: integer
+        total_pages:
+          type: integer
+      description: List pagination
+      x-examples:
+        Pagination:
+          page: 5
+          page_size: 20
+          total_items: 4678
+          total_pages: 234
+    ComponentList:
+      title: ComponentList
+      type: object
+      description: List of components
+      x-examples:
+        Components:
+          pagination:
+            page: 1
+            page_size: 20
+            total_items: 1
+            total_pages: 1
+          components:
+            - id: 22a38760-edb8-4dd8-9666-13d38e107016
+              name: my-component
+              title: My Component
+      properties:
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        components:
+          type: array
+          items:
+            $ref: '#/components/schemas/Component'
+    DependencyList:
+      title: DependencyList
+      type: object
+      description: A list of dependencies
+      properties:
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        dependencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/Dependency'
+      x-examples:
+        Dependencies:
+          pagination:
+            page: 1
+            page_size: 20
+            total_items: 1
+            total_pages: 1
+          dependencies:
+            - id: 433f6b35-a19c-458a-974a-d0993cc95b67
+              component_version_id: 8044ffe5-9019-452c-b74b-1413eb1dc88e
+              dependency_version_id: b5730b82-6593-447c-b403-03ad9176c074
+              created: '2020-12-04T15:28:31.436Z'
+    VersionList:
+      title: VersionList
+      type: object
+      description: A list of versions
+      properties:
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Version'
+      x-examples:
+        Versions:
+          pagination:
+            page: 1
+            page_size: 20
+            total_items: 2
+            total_pages: 1
+          versions:
+            - id: string
+              component_id: string
+              commit: string
+              image_tag: string
+              template_ref: string
+              revision: string
+              version: string
+              created: string
+              environments:
+                - name: string
+                  deployed_date: string
+            - id: b5730b82-6593-447c-b403-03ad9176c074
+              component_id: 7c313836-2bd2-43b6-9061-b829f5633dcd
+              commit: a7c0274e0d58eb8c38946f06b2cd3a455518b022
+              image_tag: ''
+              template_ref: ''
+              revision: ''
+              version: ''
+              created: '2020-12-04T14:33:53.238Z'
+              environments:
+                - name: qa
+                  deployed_date: '2020-12-04T15:02:32.248Z'
+    DependencyCheck:
+      title: DependencyCheck
+      type: object
+      properties:
+        is_valid:
+          type: boolean
+        dependency_grid:
+          $ref: '#/components/schemas/DependencyGrid'
+      x-examples:
+        DependencyCheck:
+          is_valid: true
+          dependency_grid:
+            component: component-one
+            version: b977bcb32b463c7e7de381a84d495d761961a4e8
+            dependencies:
+              - component: component-two
+                version: a7c0274e0d58eb8c38946f06b2cd3a455518b022
+      description: ''
+    DependencyGrid:
+      title: DependencyGrid
+      type: object
+      properties:
+        component:
+          type: string
+        version:
+          type: string
+        dependencies:
+          type: array
+          items:
+            type: object
+            properties:
+              component:
+                type: string
+              version:
+                type: string
+      x-examples:
+        DependencyGrid:
+          component: component-one
+          version: b977bcb32b463c7e7de381a84d495d761961a4e8
+          dependencies:
+            - component: component-two
+              version: a7c0274e0d58eb8c38946f06b2cd3a455518b022
