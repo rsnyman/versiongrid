@@ -9,6 +9,9 @@ tags:
 info:
   title: VersionGrid
   version: '1.0'
+  description: A version dependency management API
+  license:
+    name: MIT
 servers:
   - url: 'http://localhost:3000'
 paths:
@@ -61,6 +64,7 @@ paths:
           name: version
       tags:
         - component
+      x-openapi-router-controller: versiongrid.controllers.component_controller
     post:
       summary: Create a new component
       operationId: add_component
@@ -83,6 +87,7 @@ paths:
               $ref: '#/components/schemas/Component'
       tags:
         - component
+      x-openapi-router-controller: versiongrid.controllers.component_controller
   '/component/{component_id}':
     parameters:
       - schema:
@@ -107,6 +112,7 @@ paths:
           description: Internal Server Error
       operationId: get_component
       description: Get a component by id
+      x-openapi-router-controller: versiongrid.controllers.component_controller
     put:
       summary: Update a single component
       operationId: update_component
@@ -131,6 +137,7 @@ paths:
               $ref: '#/components/schemas/Component'
       tags:
         - component
+      x-openapi-router-controller: versiongrid.controllers.component_controller
     delete:
       summary: Delete a single component
       operationId: delete_component
@@ -144,6 +151,7 @@ paths:
       description: Delete a component
       tags:
         - component
+      x-openapi-router-controller: versiongrid.controllers.component_controller
   /dependency:
     get:
       summary: Get a list of dependencies
@@ -181,6 +189,7 @@ paths:
             type: string
           in: query
           name: version
+      x-openapi-router-controller: versiongrid.controllers.dependency_controller
     post:
       summary: Create a new dependency
       operationId: add_dependency
@@ -200,9 +209,12 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Dependency'
+              oneOf:
+                - $ref: '#/components/schemas/Dependency'
+                - $ref: '#/components/schemas/DependencyGrid'
       tags:
         - dependency
+      x-openapi-router-controller: versiongrid.controllers.dependency_controller
   '/dependency/{dependency_id}':
     parameters:
       - schema:
@@ -227,6 +239,7 @@ paths:
           description: Internal Server Error
       operationId: get_dependency
       description: Get a dependency by id
+      x-openapi-router-controller: versiongrid.controllers.dependency_controller
     put:
       summary: Update a single dependency
       operationId: update_dependency
@@ -251,6 +264,7 @@ paths:
               $ref: '#/components/schemas/Dependency'
       tags:
         - dependency
+      x-openapi-router-controller: versiongrid.controllers.dependency_controller
     delete:
       summary: Delete a single dependency
       operationId: delete_dependency
@@ -264,6 +278,35 @@ paths:
       description: Delete a dependency
       tags:
         - dependency
+      x-openapi-router-controller: versiongrid.controllers.dependency_controller
+  '/dependency/{component}/check':
+    get:
+      summary: Check a component's dependencies
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DependencyCheck'
+      operationId: check_dependency
+      description: Check a list of dependencies
+      parameters:
+        - schema:
+            type: string
+          in: path
+          name: component
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: version
+        - schema:
+            type: string
+          in: query
+          name: dependency
+      x-openapi-router-controller: versiongrid.controllers.dependency_controller
   /version:
     get:
       summary: Get a list of versions
@@ -301,6 +344,7 @@ paths:
             type: string
           in: query
           name: version
+      x-openapi-router-controller: versiongrid.controllers.version_controller
     post:
       summary: Create a new version
       operationId: add_version
@@ -323,6 +367,7 @@ paths:
               $ref: '#/components/schemas/Version'
       tags:
         - version
+      x-openapi-router-controller: versiongrid.controllers.version_controller
   '/version/{version_id}':
     parameters:
       - schema:
@@ -347,6 +392,7 @@ paths:
           description: Internal Server Error
       operationId: get_version
       description: Get a version by id
+      x-openapi-router-controller: versiongrid.controllers.version_controller
     put:
       summary: Update a single version
       operationId: update_version
@@ -371,6 +417,7 @@ paths:
               $ref: '#/components/schemas/Version'
       tags:
         - version
+      x-openapi-router-controller: versiongrid.controllers.version_controller
     delete:
       summary: Delete a single version
       operationId: delete_version
@@ -384,33 +431,7 @@ paths:
       description: Delete a version
       tags:
         - version
-  /dependency/check:
-    get:
-      summary: Your GET endpoint
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DependencyCheck'
-      operationId: check_dependency
-      description: Check a list of dependencies
-      parameters:
-        - schema:
-            type: string
-          in: query
-          name: component
-          required: true
-        - schema:
-            type: string
-          in: query
-          name: version
-        - schema:
-            type: array
-          in: query
-          name: dependency
+      x-openapi-router-controller: versiongrid.controllers.version_controller
 components:
   schemas:
     Version:
