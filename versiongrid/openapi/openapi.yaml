@@ -1,0 +1,902 @@
+openapi: 3.0.0
+info:
+  description: A version dependency management API
+  license:
+    name: MIT
+  title: VersionGrid
+  version: "1.0"
+servers:
+- url: http://localhost:3000
+tags:
+- description: A version of a component
+  name: version
+- description: A dependency between two versions
+  name: dependency
+- description: A project or product of some sort
+  name: component
+paths:
+  /component:
+    get:
+      description: A list of components
+      operationId: get_component_list
+      parameters:
+      - explode: true
+        in: query
+        name: commit
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: image_tag
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: template_ref
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: revision
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: version
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Components:
+                  value:
+                    pagination:
+                      page: 1
+                      page_size: 20
+                      total_items: 1
+                      total_pages: 1
+                    components:
+                    - id: 22a38760-edb8-4dd8-9666-13d38e107016
+                      name: my-component
+                      title: My Component
+              schema:
+                $ref: '#/components/schemas/ComponentList'
+          description: OK
+        "500":
+          description: Internal Server Error
+      summary: Get a list of components
+      tags:
+      - component
+      x-openapi-router-controller: versiongrid.controllers.component_controller
+    post:
+      description: Create a new component
+      operationId: add_component
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Component'
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Component'
+          description: Created
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: Create a new component
+      tags:
+      - component
+      x-openapi-router-controller: versiongrid.controllers.component_controller
+  /component/{component_id}:
+    delete:
+      description: Delete a component
+      operationId: delete_component
+      parameters:
+      - explode: false
+        in: path
+        name: component_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Delete a single component
+      tags:
+      - component
+      x-openapi-router-controller: versiongrid.controllers.component_controller
+    get:
+      description: Get a component by id
+      operationId: get_component
+      parameters:
+      - explode: false
+        in: path
+        name: component_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Component'
+          description: OK
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get a single component
+      tags:
+      - component
+      x-openapi-router-controller: versiongrid.controllers.component_controller
+    put:
+      description: Update a particular component
+      operationId: update_component
+      parameters:
+      - explode: false
+        in: path
+        name: component_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Component'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Component'
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Update a single component
+      tags:
+      - component
+      x-openapi-router-controller: versiongrid.controllers.component_controller
+  /dependency:
+    get:
+      description: A list of dependencies
+      operationId: get_dependency_list
+      parameters:
+      - explode: true
+        in: query
+        name: commit
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: image_tag
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: template_ref
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: revision
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: version
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DependencyList'
+          description: OK
+        "500":
+          description: Internal Server Error
+      summary: Get a list of dependencies
+      tags:
+      - dependency
+      x-openapi-router-controller: versiongrid.controllers.dependency_controller
+    post:
+      description: Create a new dependency
+      operationId: add_dependency
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/Dependency'
+              - $ref: '#/components/schemas/DependencyGrid'
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dependency'
+          description: Created
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: Create a new dependency
+      tags:
+      - dependency
+      x-openapi-router-controller: versiongrid.controllers.dependency_controller
+  /dependency/{component}/check:
+    get:
+      description: Check a list of dependencies
+      operationId: check_dependency
+      parameters:
+      - explode: false
+        in: path
+        name: component
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: version
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: dependency
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DependencyCheck'
+          description: OK
+      summary: Check a component's dependencies
+      tags:
+      - dependency
+      x-openapi-router-controller: versiongrid.controllers.dependency_controller
+  /dependency/{dependency_id}:
+    delete:
+      description: Delete a dependency
+      operationId: delete_dependency
+      parameters:
+      - explode: false
+        in: path
+        name: dependency_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Delete a single dependency
+      tags:
+      - dependency
+      x-openapi-router-controller: versiongrid.controllers.dependency_controller
+    get:
+      description: Get a dependency by id
+      operationId: get_dependency
+      parameters:
+      - explode: false
+        in: path
+        name: dependency_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dependency'
+          description: OK
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get a single dependency
+      tags:
+      - dependency
+      x-openapi-router-controller: versiongrid.controllers.dependency_controller
+    put:
+      description: Update a particular dependency
+      operationId: update_dependency
+      parameters:
+      - explode: false
+        in: path
+        name: dependency_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Dependency'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dependency'
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Update a single dependency
+      tags:
+      - dependency
+      x-openapi-router-controller: versiongrid.controllers.dependency_controller
+  /version:
+    get:
+      description: A list of versions
+      operationId: get_version_list
+      parameters:
+      - explode: true
+        in: query
+        name: commit
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: image_tag
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: template_ref
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: revision
+        required: false
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: version
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VersionList'
+          description: OK
+        "500":
+          description: Internal Server Error
+      summary: Get a list of versions
+      tags:
+      - version
+      x-openapi-router-controller: versiongrid.controllers.version_controller
+    post:
+      description: Create a new version
+      operationId: add_version
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Version'
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Version'
+          description: Created
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: Create a new version
+      tags:
+      - version
+      x-openapi-router-controller: versiongrid.controllers.version_controller
+  /version/{version_id}:
+    delete:
+      description: Delete a version
+      operationId: delete_version
+      parameters:
+      - explode: false
+        in: path
+        name: version_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Delete a single version
+      tags:
+      - version
+      x-openapi-router-controller: versiongrid.controllers.version_controller
+    get:
+      description: Get a version by id
+      operationId: get_version
+      parameters:
+      - explode: false
+        in: path
+        name: version_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Version'
+          description: OK
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Get a single version
+      tags:
+      - version
+      x-openapi-router-controller: versiongrid.controllers.version_controller
+    put:
+      description: Update a particular version
+      operationId: update_version
+      parameters:
+      - explode: false
+        in: path
+        name: version_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Version'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Version'
+          description: OK
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      summary: Update a single version
+      tags:
+      - version
+      x-openapi-router-controller: versiongrid.controllers.version_controller
+components:
+  schemas:
+    Version:
+      description: A version of a component
+      example:
+        component_id: component_id
+        environments:
+        - name: name
+          deployed_date: deployed_date
+        - name: name
+          deployed_date: deployed_date
+        template_ref: template_ref
+        created: created
+        commit: commit
+        id: id
+        image_tag: image_tag
+        version: version
+        revision: revision
+      properties:
+        id:
+          type: string
+        component_id:
+          type: string
+        commit:
+          type: string
+        image_tag:
+          type: string
+        template_ref:
+          type: string
+        revision:
+          type: string
+        version:
+          type: string
+        created:
+          type: string
+        environments:
+          items:
+            $ref: '#/components/schemas/Version_environments'
+          type: array
+      title: Version
+      type: object
+      x-examples:
+        VersionOne:
+          id: 8044ffe5-9019-452c-b74b-1413eb1dc88e
+          component_id: 22a38760-edb8-4dd8-9666-13d38e107016
+          commit: b977bcb32b463c7e7de381a84d495d761961a4e8
+          image_tag: ""
+          template_ref: ""
+          revision: ""
+          version: ""
+          created: 2020-12-04T14:32:23.628Z
+          environments:
+          - name: qa
+            deployed_date: 2020-12-04T14:51:44.273Z
+        VersionTwo:
+          id: b5730b82-6593-447c-b403-03ad9176c074
+          component_id: 7c313836-2bd2-43b6-9061-b829f5633dcd
+          commit: a7c0274e0d58eb8c38946f06b2cd3a455518b022
+          image_tag: ""
+          template_ref: ""
+          revision: ""
+          version: ""
+          created: 2020-12-04T14:33:53.238Z
+          environments:
+          - name: qa
+            deployed_date: 2020-12-04T15:02:32.248Z
+    Component:
+      description: A component is a product, project or other versioned object
+      example:
+        name: name
+        id: id
+        title: title
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        title:
+          type: string
+      title: Component
+      type: object
+      x-examples:
+        ComponentOne:
+          id: 22a38760-edb8-4dd8-9666-13d38e107016
+          name: component-one
+          title: Component One
+        ComponentTwo:
+          id: 7c313836-2bd2-43b6-9061-b829f5633dcd
+          name: component-two
+          title: Component Two
+    Dependency:
+      description: A dependency between a version of one component and a version of
+        another component
+      example:
+        dependency_version_id: dependency_version_id
+        created: created
+        id: id
+        component_version_id: component_version_id
+      properties:
+        id:
+          type: string
+        component_version_id:
+          type: string
+        dependency_version_id:
+          type: string
+        created:
+          type: string
+      title: Dependency
+      type: object
+      x-examples:
+        Dependency:
+          id: 433f6b35-a19c-458a-974a-d0993cc95b67
+          component_version_id: 8044ffe5-9019-452c-b74b-1413eb1dc88e
+          dependency_version_id: b5730b82-6593-447c-b403-03ad9176c074
+          created: 2020-12-04T15:28:31.436Z
+    Pagination:
+      description: List pagination
+      example:
+        page: 0
+        total_pages: 5
+        total_items: 1
+        page_size: 6
+      properties:
+        page:
+          type: integer
+        page_size:
+          type: integer
+        total_items:
+          type: integer
+        total_pages:
+          type: integer
+      title: Pagination
+      type: object
+      x-examples:
+        Pagination:
+          page: 5
+          page_size: 20
+          total_items: 4678
+          total_pages: 234
+    ComponentList:
+      description: List of components
+      example:
+        components:
+        - name: name
+          id: id
+          title: title
+        - name: name
+          id: id
+          title: title
+        pagination:
+          page: 0
+          total_pages: 5
+          total_items: 1
+          page_size: 6
+      properties:
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        components:
+          items:
+            $ref: '#/components/schemas/Component'
+          type: array
+      title: ComponentList
+      type: object
+      x-examples:
+        Components:
+          pagination:
+            page: 1
+            page_size: 20
+            total_items: 1
+            total_pages: 1
+          components:
+          - id: 22a38760-edb8-4dd8-9666-13d38e107016
+            name: my-component
+            title: My Component
+    DependencyList:
+      description: A list of dependencies
+      example:
+        pagination:
+          page: 0
+          total_pages: 5
+          total_items: 1
+          page_size: 6
+        dependencies:
+        - dependency_version_id: dependency_version_id
+          created: created
+          id: id
+          component_version_id: component_version_id
+        - dependency_version_id: dependency_version_id
+          created: created
+          id: id
+          component_version_id: component_version_id
+      properties:
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        dependencies:
+          items:
+            $ref: '#/components/schemas/Dependency'
+          type: array
+      title: DependencyList
+      type: object
+      x-examples:
+        Dependencies:
+          pagination:
+            page: 1
+            page_size: 20
+            total_items: 1
+            total_pages: 1
+          dependencies:
+          - id: 433f6b35-a19c-458a-974a-d0993cc95b67
+            component_version_id: 8044ffe5-9019-452c-b74b-1413eb1dc88e
+            dependency_version_id: b5730b82-6593-447c-b403-03ad9176c074
+            created: 2020-12-04T15:28:31.436Z
+    VersionList:
+      description: A list of versions
+      example:
+        pagination:
+          page: 0
+          total_pages: 5
+          total_items: 1
+          page_size: 6
+        versions:
+        - component_id: component_id
+          environments:
+          - name: name
+            deployed_date: deployed_date
+          - name: name
+            deployed_date: deployed_date
+          template_ref: template_ref
+          created: created
+          commit: commit
+          id: id
+          image_tag: image_tag
+          version: version
+          revision: revision
+        - component_id: component_id
+          environments:
+          - name: name
+            deployed_date: deployed_date
+          - name: name
+            deployed_date: deployed_date
+          template_ref: template_ref
+          created: created
+          commit: commit
+          id: id
+          image_tag: image_tag
+          version: version
+          revision: revision
+      properties:
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        versions:
+          items:
+            $ref: '#/components/schemas/Version'
+          type: array
+      title: VersionList
+      type: object
+      x-examples:
+        Versions:
+          pagination:
+            page: 1
+            page_size: 20
+            total_items: 2
+            total_pages: 1
+          versions:
+          - id: string
+            component_id: string
+            commit: string
+            image_tag: string
+            template_ref: string
+            revision: string
+            version: string
+            created: string
+            environments:
+            - name: string
+              deployed_date: string
+          - id: b5730b82-6593-447c-b403-03ad9176c074
+            component_id: 7c313836-2bd2-43b6-9061-b829f5633dcd
+            commit: a7c0274e0d58eb8c38946f06b2cd3a455518b022
+            image_tag: ""
+            template_ref: ""
+            revision: ""
+            version: ""
+            created: 2020-12-04T14:33:53.238Z
+            environments:
+            - name: qa
+              deployed_date: 2020-12-04T15:02:32.248Z
+    DependencyCheck:
+      example:
+        is_valid: true
+        dependency_grid:
+          component: component
+          version: version
+          dependencies:
+          - component: component
+            version: version
+          - component: component
+            version: version
+      properties:
+        is_valid:
+          type: boolean
+        dependency_grid:
+          $ref: '#/components/schemas/DependencyGrid'
+      title: DependencyCheck
+      type: object
+      x-examples:
+        DependencyCheck:
+          is_valid: true
+          dependency_grid:
+            component: component-one
+            version: b977bcb32b463c7e7de381a84d495d761961a4e8
+            dependencies:
+            - component: component-two
+              version: a7c0274e0d58eb8c38946f06b2cd3a455518b022
+    DependencyGrid:
+      example:
+        component: component
+        version: version
+        dependencies:
+        - component: component
+          version: version
+        - component: component
+          version: version
+      properties:
+        component:
+          type: string
+        version:
+          type: string
+        dependencies:
+          items:
+            $ref: '#/components/schemas/DependencyGrid_dependencies'
+          type: array
+      title: DependencyGrid
+      type: object
+      x-examples:
+        DependencyGrid:
+          component: component-one
+          version: b977bcb32b463c7e7de381a84d495d761961a4e8
+          dependencies:
+          - component: component-two
+            version: a7c0274e0d58eb8c38946f06b2cd3a455518b022
+    Version_environments:
+      example:
+        name: name
+        deployed_date: deployed_date
+      properties:
+        name:
+          type: string
+        deployed_date:
+          type: string
+      type: object
+    DependencyGrid_dependencies:
+      example:
+        component: component
+        version: version
+      properties:
+        component:
+          type: string
+        version:
+          type: string
+      type: object
