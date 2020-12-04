@@ -282,7 +282,8 @@ paths:
   '/dependency/{component}/check':
     get:
       summary: Check a component's dependencies
-      tags: []
+      tags:
+        - dependency
       responses:
         '200':
           description: OK
