@@ -209,7 +209,7 @@ paths:
         content:
           application/json:
             schema:
-              oneOf:
+              anyOf:
                 - $ref: '#/components/schemas/Dependency'
                 - $ref: '#/components/schemas/DependencyGrid'
       tags:
