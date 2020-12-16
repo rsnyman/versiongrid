@@ -28,7 +28,7 @@ class Component(Model, DictMixin):
     name = Column(Text, index=True)
     title = Column(Text)
 
-    versions = relationship("Version")
+    versions = relationship("Version", backref="component")
 
 
 class Dependency(Model, DictMixin):
@@ -38,6 +38,14 @@ class Dependency(Model, DictMixin):
     component_version_id = Column(PortableUUID(), ForeignKey("versions.id"), index=True)
     dependency_version_id = Column(PortableUUID(), ForeignKey("versions.id"), index=True)
     created = Column(DateTime, default=datetime.utcnow)
+
+    @property
+    def component_version(self):
+        return Version.query.get(self.component_version_id)
+
+    @property
+    def dependency_version(self):
+        return Version.query.get(self.dependency_version_id)
 
 
 class Version(Model, DictMixin):
@@ -51,30 +59,3 @@ class Version(Model, DictMixin):
     revision = Column(Text, index=True)
     version = Column(Text, index=True)
     created = Column(DateTime, default=datetime.utcnow)
-
-    environments = relationship("VersionEnvironment")
-
-    def to_dict(self):
-        version_dict = super().to_dict()
-        version_dict["environments"] = {
-            "name": self.environments.environment.name,
-            "deployed_date": self.environments.deployed_date,
-        }
-        return version_dict
-
-
-class Environment(Model, DictMixin):
-    __tablename__ = "environments"
-
-    id = Column(PortableUUID(), primary_key=True, default=_gen_uuid, unique=True, nullable=False)
-    name = Column(Text, index=True)
-
-
-class VersionEnvironment(Model):
-    __tablename__ = "environments_versions"
-
-    environment_id = Column(PortableUUID(), ForeignKey("environments.id"), primary_key=True)
-    version_id = Column(PortableUUID(), ForeignKey("versions.id"), primary_key=True)
-    deployed_date = Column(DateTime)
-
-    environment = relationship("Environment")

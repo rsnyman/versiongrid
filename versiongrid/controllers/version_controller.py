@@ -1,71 +1,102 @@
 import connexion
-import six
 
-from versiongrid.models.version import Version  # noqa: E501
-from versiongrid.models.version_list import VersionList  # noqa: E501
-from versiongrid import util
+from versiongrid.db.base import session
+from versiongrid.db.models import Version
 
 
-def add_version(version=None):  # noqa: E501
+def add_version(version=None):
     """Create a new version
 
-    Create a new version # noqa: E501
+    Create a new version
 
-    :param version: 
+    :param version:
     :type version: dict | bytes
 
     :rtype: Version
     """
-    if connexion.request.is_json:
-        version = Version.from_dict(connexion.request.get_json())  # noqa: E501
-    return 'do some magic!'
+    if not connexion.request.is_json:
+        return "Bad request, JSON required", 400
+    version = Version(**connexion.request.get_json())
+    session.add(version)
+    return version.to_dict(), 201
 
 
-def delete_version(version_id):  # noqa: E501
+def delete_version(version_id):
     """Delete a single version
 
-    Delete a version # noqa: E501
+    Delete a version
 
-    :param version_id: 
+    :param version_id:
     :type version_id: str
 
     :rtype: None
     """
-    return 'do some magic!'
+    version = Version.query.get(version_id)
+    if version:
+        session.delete(version)
+        session.commit()
+        return "Deleted", 200
+    else:
+        return "Version not found", 404
 
 
-def get_version(version_id):  # noqa: E501
+def get_version(version_id):
     """Get a single version
 
-    Get a version by id # noqa: E501
+    Get a version by id
 
-    :param version_id: 
+    :param version_id:
     :type version_id: str
 
     :rtype: Version
     """
-    return 'do some magic!'
+    version = Version.query.get(version_id)
+    if version:
+        return version.to_dict()
+    else:
+        return "Version not found", 404
 
 
-def get_version_list(commit=None, image_tag=None, template_ref=None, revision=None, version=None):  # noqa: E501
+def get_version_list(
+    commit=None,
+    image_tag=None,
+    template_ref=None,
+    revision=None,
+    version=None,
+    page=1,
+    page_size=25,
+):
     """Get a list of versions
 
     A list of versions # noqa: E501
 
-    :param commit: 
+    :param commit:
     :type commit: str
-    :param image_tag: 
+    :param image_tag:
     :type image_tag: str
-    :param template_ref: 
+    :param template_ref:
     :type template_ref: str
-    :param revision: 
+    :param revision:
     :type revision: str
-    :param version: 
+    :param version:
     :type version: str
 
     :rtype: VersionList
     """
-    return 'do some magic!'
+    offset = (page * page_size) - page_size
+    query = Version.query
+    total_items = query.count()
+    total_pages = (total_items // page_size) + (1 if total_items % page_size > 0 else 0)
+    versions = query.limit(page_size).offset(offset).all()
+    return {
+        "versions": [version.to_dict() for version in versions],
+        "pagination": {
+            "page": page,
+            "page_size": page_size,
+            "total_items": total_items,
+            "total_pages": total_pages,
+        },
+    }
 
 
 def update_version(version_id, version=None):  # noqa: E501
@@ -73,13 +104,19 @@ def update_version(version_id, version=None):  # noqa: E501
 
     Update a particular version # noqa: E501
 
-    :param version_id: 
+    :param version_id:
     :type version_id: str
-    :param version: 
+    :param version:
     :type version: dict | bytes
 
     :rtype: Version
     """
-    if connexion.request.is_json:
-        version = Version.from_dict(connexion.request.get_json())  # noqa: E501
-    return 'do some magic!'
+    if not connexion.request.is_json:
+        return "Bad request, JSON required", 400
+    version = Version.query.get(version_id)
+    if not version:
+        return "Version not found", 404
+    version.update(connexion.request.get_json())
+    session.add(version)
+    session.commit()
+    return version.to_dict()

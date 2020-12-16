@@ -1,85 +1,122 @@
 import connexion
-import six
 
-from versiongrid.models.component import Component  # noqa: E501
-from versiongrid.models.component_list import ComponentList  # noqa: E501
-from versiongrid import util
+from versiongrid.db.base import session
+from versiongrid.db.models import Component
 
 
-def add_component(component=None):  # noqa: E501
+def add_component(component=None):
     """Create a new component
 
-    Create a new component # noqa: E501
+    Create a new component
 
-    :param component: 
+    :param component:
     :type component: dict | bytes
 
     :rtype: Component
     """
-    if connexion.request.is_json:
-        component = Component.from_dict(connexion.request.get_json())  # noqa: E501
-    return 'do some magic!'
+    if not connexion.request.is_json:
+        return "Bad request, JSON required", 400
+    component = Component.from_dict(**connexion.request.get_json())
+    session.add(component)
+    return component.to_dict(), 201
 
 
-def delete_component(component_id):  # noqa: E501
+def delete_component(component_id):
     """Delete a single component
 
-    Delete a component # noqa: E501
+    Delete a component
 
-    :param component_id: 
+    :param component_id:
     :type component_id: str
 
     :rtype: None
     """
-    return 'do some magic!'
+    component = Component.query.get(component_id)
+    if component:
+        session.delete(component)
+        session.commit()
+        return "Deleted", 200
+    else:
+        return "Component not found", 404
 
 
-def get_component(component_id):  # noqa: E501
+def get_component(component_id):
     """Get a single component
 
-    Get a component by id # noqa: E501
+    Get a component by id
 
-    :param component_id: 
+    :param component_id:
     :type component_id: str
 
     :rtype: Component
     """
-    return 'do some magic!'
+    component = Component.query.get(component_id)
+    if component:
+        return component.to_dict()
+    else:
+        return "Component not found", 404
 
 
-def get_component_list(commit=None, image_tag=None, template_ref=None, revision=None, version=None):  # noqa: E501
+def get_component_list(
+    commit=None,
+    image_tag=None,
+    template_ref=None,
+    revision=None,
+    version=None,
+    page=1,
+    page_size=25,
+):
     """Get a list of components
 
-    A list of components # noqa: E501
+    A list of components
 
-    :param commit: 
+    :param commit:
     :type commit: str
-    :param image_tag: 
+    :param image_tag:
     :type image_tag: str
-    :param template_ref: 
+    :param template_ref:
     :type template_ref: str
-    :param revision: 
+    :param revision:
     :type revision: str
-    :param version: 
+    :param version:
     :type version: str
 
     :rtype: ComponentList
     """
-    return 'do some magic!'
+    offset = (page * page_size) - page_size
+    query = Component.query
+    total_items = query.count()
+    total_pages = (total_items // page_size) + (1 if total_items % page_size > 0 else 0)
+    components = query.limit(page_size).offset(offset).all()
+    return {
+        "components": [component.to_dict() for component in components],
+        "pagination": {
+            "page": page,
+            "page_size": page_size,
+            "total_items": total_items,
+            "total_pages": total_pages,
+        },
+    }
 
 
-def update_component(component_id, component=None):  # noqa: E501
+def update_component(component_id, component=None):
     """Update a single component
 
-    Update a particular component # noqa: E501
+    Update a particular component
 
-    :param component_id: 
+    :param component_id:
     :type component_id: str
-    :param component: 
+    :param component:
     :type component: dict | bytes
 
     :rtype: Component
     """
-    if connexion.request.is_json:
-        component = Component.from_dict(connexion.request.get_json())  # noqa: E501
-    return 'do some magic!'
+    if not connexion.request.is_json:
+        return "Bad request, JSON required", 400
+    component = Component.query.get(component_id)
+    if not component:
+        return "Component not found", 404
+    component.update(connexion.request.get_json())
+    session.add(component)
+    session.commit()
+    return component.to_dict()
