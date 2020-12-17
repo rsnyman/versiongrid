@@ -57,29 +57,15 @@ def get_component(component_id):
         return "Component not found", 404
 
 
-def get_component_list(
-    commit=None,
-    image_tag=None,
-    template_ref=None,
-    revision=None,
-    version=None,
-    page=1,
-    page_size=25,
-):
+def get_component_list(page=1, page_size=25):
     """Get a list of components
 
     A list of components
 
-    :param commit:
-    :type commit: str
-    :param image_tag:
-    :type image_tag: str
-    :param template_ref:
-    :type template_ref: str
-    :param revision:
-    :type revision: str
-    :param version:
-    :type version: str
+    :param page:
+    :type page: int
+    :param page_size:
+    :type page_size: int
 
     :rtype: ComponentList
     """

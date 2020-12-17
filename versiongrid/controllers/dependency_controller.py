@@ -1,76 +1,92 @@
 import connexion
 
-from versiongrid.models.dependency import Dependency  # noqa: E501
+from versiongrid.db.base import session
+from versiongrid.db.models import Dependency
 
 
-def add_dependency(dependency=None):  # noqa: E501
+def add_dependency(dependency=None):
     """Create a new dependency
 
-    Create a new dependency # noqa: E501
+    Create a new dependency
 
     :param dependency:
     :type dependency: dict | bytes
 
     :rtype: Dependency
     """
-    if connexion.request.is_json:
-        _ = Dependency.from_dict(connexion.request.get_json())  # noqa: E501
-    return "do some magic!"
+    if not connexion.request.is_json:
+        return "Bad request, JSON required", 400
+    dependency = Dependency(**connexion.request.get_json())
+    session.add(dependency)
+    return dependency.to_dict(), 201
 
 
-def delete_dependency(dependency_id):  # noqa: E501
+def delete_dependency(dependency_id):
     """Delete a single dependency
 
-    Delete a dependency # noqa: E501
+    Delete a dependency
 
     :param dependency_id:
     :type dependency_id: str
 
     :rtype: None
     """
-    return "do some magic!"
+    dependency = Dependency.query.get(dependency_id)
+    if dependency:
+        session.delete(dependency)
+        session.commit()
+        return "Deleted", 200
+    else:
+        return "Dependency not found", 404
 
 
-def get_dependency(dependency_id):  # noqa: E501
+def get_dependency(dependency_id):
     """Get a single dependency
 
-    Get a dependency by id # noqa: E501
+    Get a dependency by id
 
     :param dependency_id:
     :type dependency_id: str
 
     :rtype: Dependency
     """
-    return "do some magic!"
+    dependency = Dependency.query.get(dependency_id)
+    if dependency:
+        return dependency.to_dict()
+    else:
+        return "Dependency not found", 404
 
 
-def get_dependency_list(
-    commit=None, image_tag=None, template_ref=None, revision=None, version=None
-):  # noqa: E501
+def get_dependency_list(component=None, page=1, page_size=25):
     """Get a list of dependencies
 
-    A list of dependencies # noqa: E501
+    A list of dependencies
 
-    :param commit:
-    :type commit: str
-    :param image_tag:
-    :type image_tag: str
-    :param template_ref:
-    :type template_ref: str
-    :param revision:
-    :type revision: str
-    :param version:
+    :param :
     :type version: str
 
     :rtype: DependencyList
     """
-    return "do some magic!"
+    offset = (page * page_size) - page_size
+    query = Dependency.query
+    total_items = query.count()
+    total_pages = (total_items // page_size) + (1 if total_items % page_size > 0 else 0)
+    dependencies = query.limit(page_size).offset(offset).all()
+    return {
+        "dependencies": [dependency.to_dict() for dependency in dependencies],
+        "pagination": {
+            "page": page,
+            "page_size": page_size,
+            "total_items": total_items,
+            "total_pages": total_pages,
+        },
+    }
 
 
-def update_dependency(dependency_id, dependency=None):  # noqa: E501
+def update_dependency(dependency_id, dependency=None):
     """Update a single dependency
 
-    Update a particular dependency # noqa: E501
+    Update a particular dependency
 
     :param dependency_id:
     :type dependency_id: str
@@ -79,6 +95,12 @@ def update_dependency(dependency_id, dependency=None):  # noqa: E501
 
     :rtype: Dependency
     """
-    if connexion.request.is_json:
-        _ = Dependency.from_dict(connexion.request.get_json())  # noqa: E501
-    return "do some magic!"
+    if not connexion.request.is_json:
+        return "Bad request, JSON required", 400
+    dependency = Dependency.query.get(dependency_id)
+    if not dependency:
+        return "Dependency not found", 404
+    dependency.update(connexion.request.get_json())
+    session.add(dependency)
+    session.commit()
+    return dependency.to_dict()

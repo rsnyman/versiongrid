@@ -23,38 +23,17 @@ paths:
       parameters:
       - explode: true
         in: query
-        name: commit
+        name: page
         required: false
         schema:
-          type: string
+          type: integer
         style: form
       - explode: true
         in: query
-        name: image_tag
+        name: page_size
         required: false
         schema:
-          type: string
-        style: form
-      - explode: true
-        in: query
-        name: template_ref
-        required: false
-        schema:
-          type: string
-        style: form
-      - explode: true
-        in: query
-        name: revision
-        required: false
-        schema:
-          type: string
-        style: form
-      - explode: true
-        in: query
-        name: version
-        required: false
-        schema:
-          type: string
+          type: integer
         style: form
       responses:
         "200":
@@ -193,38 +172,17 @@ paths:
       parameters:
       - explode: true
         in: query
-        name: commit
+        name: page
         required: false
         schema:
-          type: string
+          type: integer
         style: form
       - explode: true
         in: query
-        name: image_tag
+        name: page_size
         required: false
         schema:
-          type: string
-        style: form
-      - explode: true
-        in: query
-        name: template_ref
-        required: false
-        schema:
-          type: string
-        style: form
-      - explode: true
-        in: query
-        name: revision
-        required: false
-        schema:
-          type: string
-        style: form
-      - explode: true
-        in: query
-        name: version
-        required: false
-        schema:
-          type: string
+          type: integer
         style: form
       responses:
         "200":
@@ -434,6 +392,20 @@ paths:
         schema:
           type: string
         style: form
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: page_size
+        required: false
+        schema:
+          type: integer
+        style: form
       responses:
         "200":
           content:
@@ -558,11 +530,6 @@ components:
       description: A version of a component
       example:
         component_id: component_id
-        environments:
-        - name: name
-          deployed_date: deployed_date
-        - name: name
-          deployed_date: deployed_date
         template_ref: template_ref
         created: created
         commit: commit
@@ -587,10 +554,6 @@ components:
           type: string
         created:
           type: string
-        environments:
-          items:
-            $ref: '#/components/schemas/Version_environments'
-          type: array
       title: Version
       type: object
       x-examples:
@@ -603,9 +566,6 @@ components:
           revision: ""
           version: ""
           created: 2020-12-04T14:32:23.628Z
-          environments:
-          - name: qa
-            deployed_date: 2020-12-04T14:51:44.273Z
         VersionTwo:
           id: b5730b82-6593-447c-b403-03ad9176c074
           component_id: 7c313836-2bd2-43b6-9061-b829f5633dcd
@@ -615,9 +575,6 @@ components:
           revision: ""
           version: ""
           created: 2020-12-04T14:33:53.238Z
-          environments:
-          - name: qa
-            deployed_date: 2020-12-04T15:02:32.248Z
     Component:
       description: A component is a product, project or other versioned object
       example:
@@ -855,7 +812,15 @@ components:
           type: string
         dependencies:
           items:
-            $ref: '#/components/schemas/Grid_dependencies'
+            example:
+              component: component
+              version: version
+            properties:
+              component:
+                type: string
+              version:
+                type: string
+            type: object
           type: array
       title: Grid
       type: object
@@ -866,23 +831,3 @@ components:
           dependencies:
           - component: component-two
             version: a7c0274e0d58eb8c38946f06b2cd3a455518b022
-    Version_environments:
-      example:
-        name: name
-        deployed_date: deployed_date
-      properties:
-        name:
-          type: string
-        deployed_date:
-          type: string
-      type: object
-    Grid_dependencies:
-      example:
-        component: component
-        version: version
-      properties:
-        component:
-          type: string
-        version:
-          type: string
-      type: object
