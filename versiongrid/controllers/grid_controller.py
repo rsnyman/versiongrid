@@ -30,7 +30,7 @@ def add_grid(grid=None):
     if not version:
         version = Version(version=grid["version"], component=component)
         session.add(version)
-        # session.commit()
+        session.commit()
     for dependency in grid["dependencies"]:
         dep_component = Component.query.filter(Component.name == dependency["component"]).first()
         if not dep_component:

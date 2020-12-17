@@ -16,7 +16,7 @@ def add_component(component=None):
     """
     if not connexion.request.is_json:
         return "Bad request, JSON required", 400
-    component = Component.from_dict(**connexion.request.get_json())
+    component = Component(**connexion.request.get_json())
     session.add(component)
     return component.to_dict(), 201
 

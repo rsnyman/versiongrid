@@ -1,6 +1,7 @@
 import connexion
 
 from versiongrid.db.base import session
+from versiongrid.db.models import Component
 from versiongrid.db.models import Version
 
 
@@ -16,8 +17,16 @@ def add_version(version=None):
     """
     if not connexion.request.is_json:
         return "Bad request, JSON required", 400
-    version = Version(**connexion.request.get_json())
+    version_dict = connexion.request.get_json()
+    if "component" in version_dict:
+        component_name = version_dict.pop("component")
+        component = Component.query.filter(Component.name == component_name).first()
+        if not component:
+            return f"Component {component_name} not found", 404
+        version_dict["component_id"] = component.id
+    version = Version(**version_dict)
     session.add(version)
+    session.commit()
     return version.to_dict(), 201
 
 
@@ -68,7 +77,7 @@ def get_version_list(
 ):
     """Get a list of versions
 
-    A list of versions # noqa: E501
+    A list of versions
 
     :param commit:
     :type commit: str
@@ -99,10 +108,10 @@ def get_version_list(
     }
 
 
-def update_version(version_id, version=None):  # noqa: E501
+def update_version(version_id, version=None):
     """Update a single version
 
-    Update a particular version # noqa: E501
+    Update a particular version
 
     :param version_id:
     :type version_id: str

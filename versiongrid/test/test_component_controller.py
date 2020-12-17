@@ -1,115 +1,88 @@
 # coding: utf-8
-
-from __future__ import absolute_import
-import unittest
-
-from flask import json
-from six import BytesIO
-
-from versiongrid.models.component import Component  # noqa: E501
-from versiongrid.models.component_list import ComponentList  # noqa: E501
-from versiongrid.test import BaseTestCase
+import json
 
 
-class TestComponentController(BaseTestCase):
-    """ComponentController integration test stubs"""
+def test_add_component(client):
+    """Test case for add_component
 
-    def test_add_component(self):
-        """Test case for add_component
-
-        Create a new component
-        """
-        component = {
-  "name" : "name",
-  "id" : "id",
-  "title" : "title"
-}
-        headers = { 
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-        }
-        response = self.client.open(
-            '/component',
-            method='POST',
-            headers=headers,
-            data=json.dumps(component),
-            content_type='application/json')
-        self.assert200(response,
-                       'Response body is : ' + response.data.decode('utf-8'))
-
-    def test_delete_component(self):
-        """Test case for delete_component
-
-        Delete a single component
-        """
-        headers = { 
-        }
-        response = self.client.open(
-            '/component/{component_id}'.format(component_id='component_id_example'),
-            method='DELETE',
-            headers=headers)
-        self.assert200(response,
-                       'Response body is : ' + response.data.decode('utf-8'))
-
-    def test_get_component(self):
-        """Test case for get_component
-
-        Get a single component
-        """
-        headers = { 
-            'Accept': 'application/json',
-        }
-        response = self.client.open(
-            '/component/{component_id}'.format(component_id='component_id_example'),
-            method='GET',
-            headers=headers)
-        self.assert200(response,
-                       'Response body is : ' + response.data.decode('utf-8'))
-
-    def test_get_component_list(self):
-        """Test case for get_component_list
-
-        Get a list of components
-        """
-        query_string = [('commit', 'commit_example'),
-                        ('image_tag', 'image_tag_example'),
-                        ('template_ref', 'template_ref_example'),
-                        ('revision', 'revision_example'),
-                        ('version', 'version_example')]
-        headers = { 
-            'Accept': 'application/json',
-        }
-        response = self.client.open(
-            '/component',
-            method='GET',
-            headers=headers,
-            query_string=query_string)
-        self.assert200(response,
-                       'Response body is : ' + response.data.decode('utf-8'))
-
-    def test_update_component(self):
-        """Test case for update_component
-
-        Update a single component
-        """
-        component = {
-  "name" : "name",
-  "id" : "id",
-  "title" : "title"
-}
-        headers = { 
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-        }
-        response = self.client.open(
-            '/component/{component_id}'.format(component_id='component_id_example'),
-            method='PUT',
-            headers=headers,
-            data=json.dumps(component),
-            content_type='application/json')
-        self.assert200(response,
-                       'Response body is : ' + response.data.decode('utf-8'))
+    Create a new component
+    """
+    component = {"name": "name", "title": "title"}
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+    }
+    response = client.open(
+        "/component",
+        method="POST",
+        headers=headers,
+        data=json.dumps(component),
+        content_type="application/json",
+    )
+    assert response.status_code == 201
+    assert response.json["name"] == "name"
+    assert response.json["title"] == "title"
 
 
-if __name__ == '__main__':
-    unittest.main()
+def test_delete_component(client, component):
+    """Test case for delete_component
+
+    Delete a single component
+    """
+    response = client.open(
+        "/component/{component_id}".format(component_id=component.id), method="DELETE"
+    )
+    assert response.status_code == 200
+
+
+def test_get_component(client, component):
+    """Test case for get_component
+
+    Get a single component
+    """
+    headers = {
+        "Accept": "application/json",
+    }
+    response = client.open(
+        "/component/{component_id}".format(component_id=component.id), method="GET", headers=headers
+    )
+    assert response.status_code == 200
+    assert response.json["name"] == component.name
+    assert response.json["title"] == component.title
+
+
+def test_get_component_list(client, component):
+    """Test case for get_component_list
+
+    Get a list of components
+    """
+    headers = {
+        "Accept": "application/json",
+    }
+    response = client.open("/component", method="GET", headers=headers)
+    assert response.status_code == 200
+    assert len(response.json["components"]) == 1
+    assert response.json["components"][0]["name"] == component.name
+    assert response.json["components"][0]["title"] == component.title
+
+
+def test_update_component(client, component):
+    """Test case for update_component
+
+    Update a single component
+    """
+    updated_component = {"name": "updated_name", "title": "updated_title"}
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+    }
+    response = client.open(
+        "/component/{component_id}".format(component_id=component.id),
+        method="PUT",
+        headers=headers,
+        data=json.dumps(updated_component),
+        content_type="application/json",
+    )
+    assert response.status_code == 200
+    assert response.json["name"] == "updated_name"
+    assert response.json["title"] == "updated_title"

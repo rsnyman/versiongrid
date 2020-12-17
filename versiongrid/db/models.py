@@ -20,6 +20,12 @@ class DictMixin(object):
     def to_dict(self):
         return {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
 
+    def update(self, record_dict):
+        if "id" in record_dict:
+            record_dict.pop("id")
+        for key, value in record_dict.items():
+            setattr(self, key, value)
+
 
 class Component(Model, DictMixin):
     __tablename__ = "components"
@@ -52,7 +58,7 @@ class Version(Model, DictMixin):
     __tablename__ = "versions"
 
     id = Column(PortableUUID(), primary_key=True, default=_gen_uuid, unique=True, nullable=False)
-    component_id = Column(PortableUUID(), ForeignKey("component.id"), index=True)
+    component_id = Column(PortableUUID(), ForeignKey("components.id"), index=True)
     commit = Column(Text, index=True)
     image_tag = Column(Text, index=True)
     template_ref = Column(Text, index=True)
