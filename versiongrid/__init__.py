@@ -28,16 +28,16 @@ def get_app(**extra_config):
     config = app.app.config
     config.setdefault("SQLALCHEMY_TRACK_MODIFICATIONS", True)
     config.from_mapping(os.environ)
-    if config.get("POSTGRESQL_HOST") and config.get("POSTGRESQL_DATABASE"):
+    if config.get("POSTGRES_HOST") and config.get("POSTGRES_DB"):
         # If you have environment variables for the DB, create the db url
         config.update(
             {
                 "SQLALCHEMY_DATABASE_URI": _make_sql_url(
-                    config["POSTGRESQL_HOST"],
-                    config["POSTGRESQL_DATABASE"],
-                    port=config.get("POSTGRESQL_PORT"),
-                    user=config.get("POSTGRESQL_USER"),
-                    password=config.get("POSTGRESQL_PASSWORD"),
+                    config["POSTGRES_HOST"],
+                    config["POSTGRES_DB"],
+                    port=config.get("POSTGRES_PORT"),
+                    user=config.get("POSTGRES_USER"),
+                    password=config.get("POSTGRES_PASSWORD"),
                 )
             }
         )

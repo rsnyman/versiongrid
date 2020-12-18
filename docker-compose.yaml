@@ -1,0 +1,13 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    restart: always
+    env_file: .env
+  server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    links:
+      - db
+    env_file: .env
