@@ -11,3 +11,5 @@ services:
     links:
       - db
     env_file: .env
+    ports:
+      - "8080:80"
