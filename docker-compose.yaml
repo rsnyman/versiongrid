@@ -3,13 +3,15 @@ services:
   db:
     image: postgres
     restart: always
-    env_file: .env
+    env_file:
+      - .env
   server:
     build:
       context: .
       dockerfile: docker/Dockerfile
     links:
       - db
-    env_file: .env
+    env_file:
+      - .env
     ports:
       - "8080:80"

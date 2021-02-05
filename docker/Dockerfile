@@ -1,6 +1,7 @@
 FROM tiangolo/meinheld-gunicorn-flask
 LABEL maintainer "Raoul Snyman"
 
-COPY versiongrid /app/versiongrid
-COPY docker/main.py /app/
-RUN ls /app/
+COPY . /app
+WORKDIR /app/
+RUN mv docker/main.py main.py
+RUN pip install --no-cache-dir -U pip && pip install --no-cache-dir -r requirements.txt
